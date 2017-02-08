@@ -1,0 +1,27 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="renderer" content="webkit">
+
+    <title>{% block title %}docker Dashboard{% endblock %}</title>
+    <link href="/static/app/css/base.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <script src="/static/lib/jquery.min.js"></script>
+    <script src="/static/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/app/js/utils.js"></script>
+    <script src="/static/app/js/dockerDashborad.js"></script>
+</head>
+<body >
+{% include "header.html" %}
+   <div class="container">
+     <div id="mainContainer" class="page-content" style="margin-top: 52px;">
+      {% block page_content %}{% endblock %}
+     </div>
+</div>
+{% include "footer.html" %}
+</body>
+</html>

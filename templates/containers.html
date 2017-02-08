@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}容器列表{% endblock %}
+{% block page_content %}
+    <div>
+        <table class="table table-hover table-striped table-bordered" style="table-layout: fixed;">
+            <caption><h3 style="font-weight: 200;color:dodgerblue">docker 容器</h3></caption>
+            <thead>
+            <tr class="table-one">
+                <th width="6%">编号</th>
+                <th>ID</th>
+                <th>IMAGE</th>
+                <th>COMMAND</th>
+                <th>CREATED</th>
+                <th>STATUS</th>
+                <th>PORTS</th>
+                <th>NAMES</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if not data %}
+                <td style="width: 100%;" colspan="9"><span style="font-size: 20px;color:silver">没有可用数据...</span></td>
+            {% endif %}
+            {% for container in data %}
+                <tr>
+                    <td>{{ forloop.counter|add:start_index }}</td>
+                    <td>{{ container.Id }}</td>
+                    <td>{{ container.Image }}</td>
+                    <td>{{ container.Command }}</td>
+                    <td>{{ container.Created }}</td>
+                    <td>{{ container.Status }}</td>
+                    <td>{{ container.Ports }}</td>
+                    <td>{{ container.Names|first }}</td>
+                    　　
+                    <td style="width:10%">
+                        {% if 'Up' not in container.Status %}
+                            <a href="/containers/delete/{{ container.Id }}">删除</a>｜
+                            <a href="/containers/start/{{ container.Id }}">启动</a>
+                        {% else %}
+                            <a href="/containers/stop/{{ container.Id }}">停止</a> |
+                            <a href="/containers/restart/{{ container.Id }}">重启</a>
+                        {% endif %}
+
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% include "pagination.html" %}
+    </div>
+
+{% endblock %}

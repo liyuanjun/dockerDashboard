@@ -1,0 +1,40 @@
+<div class="row clearfix">
+    <nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/images/">镜像</a>
+            <a class="navbar-brand" href="/containers/">容器</a>
+            <a class="navbar-brand" href="/host/list/">docker主机</a>
+        </div>
+
+        {% if show_host %}
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <div class="navbar-form navbar-left" role="search">
+                    <label style="color: white">主机地址:</label>
+                    <div class="form-group">
+                        <input type="text" id="ip_addr" name="ip_addr" placeholder="127.0.0.1:2375"
+                               class="form-control"/>
+                    </div>
+                    <button type="submit" onclick="test_host('/host/test/')" class="btn btn-default">测试</button>&nbsp;
+                    <button type="submit" onclick="test_host('/host/add/',true)" class="btn btn-default">保存</button>
+                </div>
+            </div>
+        {% endif %}
+        {% if docker_hosts %}
+             <div class="collapse navbar-collapse">
+               <select id="docker_seleted" style="height: 40px;width: 200px;margin-top: 5px"
+                    onchange="bind_docker()">
+                {% for server in docker_hosts %}
+                    {% if  server.selected %}
+                        <option value="{{ server.id }}"
+                                selected="{{ server.selected }}">{{ server.ip }}:{{ server.port }}</option>
+                    {% else %}
+                        <option value="{{ server.id }}">{{ server.ip }}:{{ server.port }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+             </div>
+
+        {% endif %}
+
+    </nav>
+</div>

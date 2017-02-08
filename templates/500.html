@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}500{% endblock %}
+{% block page_content %}
+<div style="text-align: center"><h1 style="color: red" id="msg">服务器异常！！！3秒钟后自动回到首页面</h1></div>
+<script>
+$(function () {
+     var i=3;
+     setInterval(function (){
+        i--;
+        if (i<=0){
+            window.location.href="/";
+        }
+        $("#msg").text("服务器异常！！！"+i+"秒钟后自动回到首页面");
+    },1000);
+})
+</script>
+{% endblock %}

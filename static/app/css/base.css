@@ -1,0 +1,63 @@
+table.one {
+    /*table固定大小，防止过长的文字撑破表格*/
+    table-layout: fixed;
+}
+
+label{
+    padding: 4px 10px;
+}
+
+label.sr-only {
+    float: left;
+    width: 50px;
+    margin: 0;
+}
+
+div.col-sm-10 {
+    margin-bottom: 10px;
+}
+
+.checkbox-inline input[type='radio'] {
+    vertical-align: bottom;
+    margin-bottom: 3px;
+}
+
+td {
+    font-size: 9px;
+    width: 20px;
+    /*定长自动隐藏，显示...*/
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    /*内容居中*/
+    text-align: center;
+}
+/*顶部样式*/
+#topbar{
+    text-align: center;
+    bottom: 0px;
+    width: 95%;
+    height: 10%;
+    overflow: auto;
+    z-index: 1;
+}
+/*底部样式*/
+#toolbar{
+position: absolute;
+    text-align: center;
+    bottom: 0px;
+    width: 100%;
+    height: 6%;
+    /*禁止出现滚动条*/
+    overflow: hidden;
+    z-index: 2;
+}
+.navbar{
+    margin-bottom: 20px;
+    overflow: visible;
+    float: left;
+}
+
+.table-one th{
+    text-align: center;
+}

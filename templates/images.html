@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}镜像列表{% endblock %}
+{% block page_content %}
+    <div>
+        <table class="table table-hover table-striped table-bordered" style="table-layout: fixed;">
+            <caption><h3 style="font-weight: 200;color:dodgerblue">docker 镜像</h3></caption>
+            <thead>
+            <tr class="table-one">
+                {# <th width="40px"><input onclick="checkall(this)" type="checkbox" value=""/></th>#}
+                <th width="6%">编号</th>
+                <th>名称</th>
+                <th>ID</th>
+                <th>创建时间</th>
+                <th>大小</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if not data %}
+                <td style="width: 100%;" colspan="6"><span style="font-size: 20px;color:silver">没有可用数据...</span>
+                </td>
+            {% endif %}
+            {% for image in data %}
+                <tr class="table-one">
+                    {#                        <td><input width="40px" name="sel_chk" type="checkbox" value="{{ image.Id }}"/></td>#}
+                    <td>{{ forloop.counter|add:start_index }}</td>
+                    <td>{{ image.tag }}</td>
+                    <td>{{ image.Id }}</td>
+                    <td>{{ image.Created }}</td>
+                    <td>{{ image.Size }}</td>
+                    <td style="width:10%">
+                        {% if image.used %}
+                            <a disabled="disabled" href="#">
+                                <span style="color: red">删除</span>
+                            </a> |
+                        {% elif image.tag == '<none>:<none>' %}
+                            <a href="/images/delete/{{ image.Id }}"><span style="color: green">删除</span></a> |
+                        {% else %}
+                            <a href="/images/delete/{{ image.tag }}"><span style="color: green">删除</span></a> |
+                        {% endif %}
+                        <a href="/containers/create/{{ image.Id }}"><span style="color: green">创建容器</span></a> |
+                        <a href="#" id="{{ image.Id }}" class="create_container"><span
+                                style="color: green">定制容器</span></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% include "pagination.html" %}
+    </div>
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="create_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">定制容器</h4>
+                </div>
+                <div class="modal-body">
+                    <ul id="myTab" class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#home" onclick="javascript:{$('#create_btn').attr('create_mode',0)}"
+                               data-toggle="tab">
+                                配置启动
+                            </a>
+                        </li>
+                        <li><a href="#shell" onclick="javascript:{$('#create_btn').attr('create_mode',1)}"
+                               data-toggle="tab">
+                            脚本启动
+                        </a>
+                        </li>
+
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <div class="tab-pane fade in active" id="home">
+                            <form class="form-horizontal" role="form" id="container_form">
+                                <input type="hidden" name="image" id="image_id">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">启动方式</label>
+                                    <label class="checkbox-inline">
+                                        <input name="start_rule" type="radio" id="inlineCheckbox1" value="0">守护式&nbsp;
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input name="start_rule" type="radio" id="inlineCheckbox2" value="1">交互式&nbsp;
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input name="start_rule" type="radio" id="inlineCheckbox2" checked="checked"
+                                               value="2">后台守护式
+                                    </label>
+                                </div>
+
+                                <div class="form-group ">
+                                    <label class="col-sm-2 control-label">数据卷</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="host_path" class="form-control" id="name"
+                                               placeholder="host path">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="container_path" class="form-control" id="name"
+                                               placeholder="container path:rw">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">端口</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" name="host_port" class="form-control" id="name"
+                                               placeholder="host port">
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input type="text" name="container_port" class="form-control" id="name"
+                                               placeholder="container port">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">CPU</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" name="cpu" class="form-control" id="name"
+                                               placeholder="cpu 数量">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">内存</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" name="memery" class="form-control" id="name"
+                                               placeholder="内存限制">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" style="padding:10px">CMD</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="cmd" class="form-control" id="name" placeholder="指令">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="shell">
+                            <label>只需像本地运行脚本那样操作即可</label>
+                            <textarea id="create_shell" class="form-control" style="width: 95%"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" id="create_btn" create_mode="0" onclick="create_container(this)"
+                            class="btn btn-primary">提交
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}404{% endblock %}
+{% block page_content %}
+<div style="text-align: center"><h1 style="color: red" id="msg">地址不见了！！！3秒钟后自动回到首页面</h1></div>
+<script>
+$(function () {
+     var i=3;
+     setInterval(function (){
+        i--;
+        if (i<=0){
+            window.location.href="/";
+        }
+        $("#msg").text("地址不见了！！！"+i+"秒钟后自动回到首页面");
+
+    },1000);
+})
+
+</script>
+{% endblock %}
