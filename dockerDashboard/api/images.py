@@ -1,46 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2016/6/30 22:52
+# @Time    : 2017/4/2 14:06
 # @Author  : Tom
-# @Desc    : use docker remote api 1.9
-# @File    : dockerClient.py
+# @Site    : 
+# @File    : Images.py
 # @Software: dockerDashBoard
-# docs     : http://www.phperz.com/article/15/0911/155461.html
-
 import requests
-import json
+from ..tools.utils import DictAble
 
 
-class _DictAble(object):
-    @staticmethod
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            code, headers, body = 500, {}, 'server error'
-            try:
-                res = func(*args, **kwargs)
-                code, headers, body = res.status_code, res.headers, json.loads(res.content)
-            except Exception, e:
-                print '%s method error: %s' % (func.__name__, e)
-            return code, headers, body
-
-        return wrapper
-
-
-class DockerClient(object):
-    """
-    docker client
-    """
-
-    def __init__(self, ip, port=2375):
-        self.ip = ip
-        self.port = port
-        self.url = 'http://%s:%s' % (self.ip, self.port)
-
-
-class Images(DockerClient):
+class Images(object):
     """
     docker 镜像
     """
+
+
     IMAGES_LIST = '/images/json'  # GET /images/json?all=0
     IMAGES_SEARCH = '/images/search?term=%s'  # GET  /images/search?term=ssh  (dockerhub repo)
     IMAGES_BUILD = '/build'  # POST /build   (param is a tar file include Dockerfile)
@@ -53,7 +27,12 @@ class Images(DockerClient):
     IMAGES_INSPECT = '/images/%s/json'  # GET /images/(name)/json
     IMAGES_INSERT = '/images/%s/insert'  # POST /images/(name)/insert?path=/usr&url=myurl
 
-    @_DictAble.decorator
+    def __init__(self, ip, port=2375):
+        self.ip = ip
+        self.port = port
+        self.url = 'http://%s:%s' % (self.ip, self.port)
+
+    @DictAble.decorator
     def list(self, term=None):
         if term:
             url = self.url + self.IMAGES_SEARCH % term
@@ -64,12 +43,12 @@ class Images(DockerClient):
     def build(self):
         pass
 
-    @_DictAble.decorator
+    @DictAble.decorator
     def delete(self, name):
         url = self.url + self.IMAGES_DELETE % name
         return requests.delete(url)
 
-    @_DictAble.decorator
+    @DictAble.decorator
     def create(self, from_image=None, from_src=None, repo=None, tag=None, registry=None):
         """ docker.io/kingaric/2048 ==> registry/repo/from_image
         :param from_image:  name of the image to pull
@@ -99,7 +78,3 @@ class Images(DockerClient):
 
     def pull(self):
         pass
-
-
-class Containers(DockerClient):
-    pass
