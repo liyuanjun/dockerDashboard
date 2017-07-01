@@ -9,8 +9,8 @@ python manage.py runserver
 
 ```
 ##docker主机配置
-![king-aric](https://github.com/king-aric/dockerDashboard/blob/master/misc/host.png) 
+![king-aric](./misc/host.png)
 ##docker镜像
-![king-aric](https://github.com/king-aric/dockerDashboard/blob/master/misc/image.png) 
+![king-aric](./misc/image.png)
 ##docker容器
-![king-aric](https://github.com/king-aric/dockerDashboard/blob/master/misc/container.png) 
+![king-aric](./misc/container.png)

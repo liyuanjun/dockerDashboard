@@ -1,20 +1,20 @@
 # -*- coding: UTF-8 -*-
-import time
-import copy
 import commands
-import threading
+import copy
 import platform
+import threading
+import time
 
-from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
+from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 
-from dockerDashboard.http import http_client
 from dockerDashboard.api import docker_api
-from dockerDashboard.utils import convertor
+from dockerDashboard.tools import funcs
+from dockerDashboard.tools.page import pagination
+from dockerDashboard.tools.utils import CommonRequest
 from dockerDashboard.web.models import DockerHost
-from dockerDashboard.utils.page import pagination
 
 DEFAULT_SERVER = None
 
@@ -22,35 +22,52 @@ DEFAULT_SERVER = None
 def docker_hosts(request=None):
     global DEFAULT_SERVER
     data = DockerHost.objects.all()
-    if len(data) <= 0:
+
+    if not data:
         DEFAULT_SERVER = None
         return []
-    if request:
-        server = request.COOKIES.get('docker_server')
-        if server:
-            for d in data:
-                if d.id == int(server):
-                    DEFAULT_SERVER = d
-                    d.selected = "selected"
-                    return data
-    DEFAULT_SERVER = data[0]
+
+    if not request:
+        DEFAULT_SERVER = data[0]
+        return data
+
+    server = request.COOKIES.get('docker_server')
+    if not server:
+        DEFAULT_SERVER = data[0]
+        return data
+
+    current_servers = filter(lambda x: x.id == int(server), data)
+    if not current_servers:
+        DEFAULT_SERVER = data[0]
+        return data
+
+    DEFAULT_SERVER = current_servers[0]
+    current_servers[0].selected = "selected"
     return data
 
 
 def __default_server(request):
     server = request.COOKIES.get('docker_server')
     global DEFAULT_SERVER
+
     if DEFAULT_SERVER and server and DEFAULT_SERVER.id == int(server):
         return DEFAULT_SERVER
+
     docker_hosts(request)
     return DEFAULT_SERVER
 
 
 def host_list(request):
     data, range, start_index = pagination(request, docker_hosts())
-    return render_to_response('dockerHost.html',
-                              {'data':data,'page_range':range,
-                               'start_index':start_index, 'show_host': True})
+    return render_to_response(
+        'dockerHost.html',
+        {
+            'data': data,
+            'page_range': range,
+            'start_index': start_index,
+            'show_host': True
+        }
+    )
 
 
 def host_delete(request, host_id):
@@ -66,8 +83,9 @@ def host_delete(request, host_id):
 def host_test(request):
     if platform.system() == 'Windows':
         return JsonResponse({'status': 200, 'msg': '该功能不支持Windows系统！'})
+
     addr = request.POST.get('ip_addr')
-    if not convertor.validate_ip(addr):
+    if not funcs.validate_ip(addr):
         return JsonResponse({'status': 200, 'msg': '请输入正确的ip:port！'})
 
     status, output = commands.getstatusoutput('curl http://%s/info' % (addr))
@@ -80,7 +98,7 @@ def host_test(request):
 @csrf_exempt
 def host_add(request):
     addr = request.POST.get('ip_addr')
-    if convertor.validate_ip(addr):
+    if funcs.validate_ip(addr):
         index = addr.index(':')
         if DockerHost.objects.filter(ip=addr[:index], port=int(addr[index + 1:])).all():
             return JsonResponse({'status': -1, 'msg': '禁止添加重复地址！'})
@@ -106,27 +124,25 @@ def __get_container_all(request):
     """
     server = __default_server(request)
     if server:
-        status, data = http_client.get_req(
-            host=server.ip, port=server.port, url=docker_api.CONTAINER_ALL)
-        if status == 200:
-            return convertor.transfer(data)
+        url = 'http://%s:%d%s' % (server.ip, server.port, docker_api.CONTAINER_ALL)
+        code, headers, body = CommonRequest.get(url)
+        return body if code == 200 else []
     return []
 
 
 def __get_images(request):
     server = __default_server(request)
     if server:
-        status, data = http_client.get_req(
-            host=server.ip, port=server.port, url=docker_api.IMAGES_LIST)
-        if status == 200:
-            return convertor.transfer(data)
+        url = 'http://%s:%d%s' % (server.ip, server.port, docker_api.IMAGES_LIST)
+        code, headers, body = CommonRequest.get(url)
+        return body if code == 200 else []
     return []
 
 
 def images(request):
-    data = __get_images(request)
+    data, image_list = __get_images(request), []
     bind_images = __bind_images_id(__get_container_all(request))
-    image_list = []
+
     for obj in data:
         index = 0
         if obj.get('Id') in bind_images:
@@ -134,8 +150,8 @@ def images(request):
         else:
             obj['used'] = False
         obj['Id'] = obj.get('Id')[obj.get('Id').index(':') + 1:]
-        obj['Created'] = convertor.time_to_str(obj.get('Created'))
-        obj['Size'] = convertor.size_format(obj.get('Size'))
+        obj['Created'] = funcs.time_to_str(obj.get('Created'))
+        obj['Size'] = funcs.size_format(obj.get('Size'))
 
         for tag in obj.get('RepoTags'):
             temp = copy.copy(obj)
@@ -143,17 +159,27 @@ def images(request):
             if index > 0: temp['used'] = False
             image_list.append(temp)
             index += 1
-    data,range, start_index= pagination(request,image_list)
-    return render_to_response('images.html',
-                              {'data': data,'page_range':range,'start_index':start_index,
-                               'docker_hosts': docker_hosts(request)})
+
+    data, range, start_index = pagination(request, image_list)
+    return render_to_response(
+        'images.html',
+        {
+            'data': data,
+            'page_range': range,
+            'start_index': start_index,
+            'docker_hosts': docker_hosts(request)
+        }
+    )
 
 
 def image_delete(request, image):
     server = __default_server(request)
-    http_client.delete_req(
-        host=server.ip, port=server.port,
-        url=docker_api.IMAGES_DELETE % (image))
+    url = 'http://%s:%d%s' % (
+        server.ip,
+        server.port,
+        docker_api.IMAGES_DELETE % (image)
+    )
+    CommonRequest.delete(url=url)
     time.sleep(1)
     return HttpResponseRedirect('/images')
 
@@ -161,57 +187,86 @@ def image_delete(request, image):
 def image_pull(request):
     image = request.GET.get('image')
     server = __default_server(request)
+
     def pull_request():
-        http_client.post_req(
-            host=server.ip, port=server.port, timeout=60 * 30,
+        url = 'http://%s:%d%s' % (
+            server.ip,
+            server.port,
+            docker_api.IMAGES_PULL % (image)
+        )
+        CommonRequest.post(
+            url,
             headers={'Content-type': 'application/json'},
-            body=None, url=docker_api.IMAGES_PULL % (image))
+            timeout=60 * 30
+        )
 
     threading.Thread(target=pull_request).start()
-    return JsonResponse({'status': 200,
-                         'msg': '提示：\n创建中！\n后台默认处理30分钟,超时即失败.',
-                         'request': '/images/'})
+    return JsonResponse(
+        {
+            'status': 200,
+            'msg': '提示：\n创建中！\n后台默认处理30分钟,超时即失败.',
+            'request': '/images/'
+        }
+    )
 
 
 def containers(request):
     data = __get_container_all(request)
     for d in data:
-        d['Created'] = convertor.time_to_str(d.get('Created'))
-        d['Size'] = convertor.size_format(d.get('Size'))
-        d['Ports'] = convertor.port_str(d.get('Ports'))
+        d['Created'] = funcs.time_to_str(d.get('Created'))
+        d['Size'] = funcs.size_format(d.get('Size'))
+        d['Ports'] = funcs.port_str(d.get('Ports'))
 
-    data, range ,start_index= pagination(request, data)
-    return render_to_response('containers.html',
-                              {'data': data,'page_range':range,'start_index':start_index,
-                               'docker_hosts': docker_hosts(request)})
+    data, range, start_index = pagination(request, data)
+    return render_to_response(
+        'containers.html',
+        {
+            'data': data,
+            'page_range': range,
+            'start_index': start_index,
+            'docker_hosts': docker_hosts(request)
+        }
+    )
 
 
 def container_start(request, container):
     server = __default_server(request)
-    http_client.post_req(
-        headers={}, body=None, host=server.ip, port=server.port,
-        url=docker_api.CONTAINER_START % (container))
-    time.sleep(1)
+    url = 'http://%s:%d%s' % (
+        server.ip,
+        server.port,
+        docker_api.CONTAINER_START % (container)
+    )
+    CommonRequest.post(url)
     return HttpResponseRedirect('/containers')
 
 
 def container_stop(request, container):
     server = __default_server(request)
-    http_client.post_req(
-        headers={}, body=None, host=server.ip, port=server.port,
-        url=docker_api.CONTAINER_STOP % (container))
+    url = 'http://%s:%d%s' % (
+        server.ip,
+        server.port,
+        docker_api.CONTAINER_STOP % (container)
+    )
+    CommonRequest.post(url)
 
     return HttpResponseRedirect('/containers')
 
 
 def container_create(request, image):
     server = __default_server(request)
-    http_client.post_req(
+    url = 'http://%s:%d%s' % (
+        server.ip,
+        server.port,
+        docker_api.CONTAINER_CREATE
+    )
+    CommonRequest.post(
+        url=url,
         headers={'Content-type': 'application/json'},
-        body=convertor.container_config(image), host=server.ip, port=server.port,
-        url=docker_api.CONTAINER_CREATE)
+        json=funcs.container_config(image)
+    )
 
     return HttpResponseRedirect('/containers')
+
 
 def container_create_custom(request):
     """
@@ -220,27 +275,40 @@ def container_create_custom(request):
     :return:
     """
     server = __default_server(request)
-    status, data = http_client.post_req(
+
+    url = 'http://%s:%d%s' % (
+        server.ip,
+        server.port,
+        docker_api.CONTAINER_CREATE
+    )
+    code, headers, body = CommonRequest.post(
+        url=url,
         headers={'Content-type': 'application/json'},
-        body=convertor.container_config_custom(request), host=server.ip, port=server.port,
-        url=docker_api.CONTAINER_CREATE)
-    if status == 201:
+        json=funcs.container_config_custom(request)
+    )
+    if code == 201:
         return JsonResponse({'status': 200, 'msg': '创建成功！', 'request': '/containers'})
     else:
-        return JsonResponse({'status': -1, 'msg': data})
+        return JsonResponse({'status': -1, 'msg': body})
 
 
 @csrf_exempt
 def container_create_shell(request):
     server = __default_server(request)
     shell = request.POST.get('shell')
+
     if '-d' not in shell and '-id' not in shell and '-itd' \
             not in shell and '-td' not in shell and '-tid' not in shell:
         return JsonResponse({'status': -1, 'msg': '不支持交互模式容器，请使用-d参数！'})
-    if '\n' in shell: shell = shell.replace('\n', ' ')
+
+    if '\n' in shell:
+        shell = shell.replace('\n', ' ')
+
     if '-H' not in shell:
         shell = shell.replace('docker', 'docker -H %s:%d' % (server.ip, server.port))
+
     status, output = commands.getstatusoutput(shell)
+
     if status == 0:
         return JsonResponse({'status': 200, 'msg': '创建成功！', 'request': '/containers'})
     else:
@@ -249,19 +317,28 @@ def container_create_shell(request):
 
 def container_delete(request, container):
     server = __default_server(request)
-    http_client.delete_req(
-        host=server.ip, port=server.port,
-        url=docker_api.CONTAINER_DELETE % (container))
+    url = 'http://%s:%d%s' % (
+        server.ip,
+        server.port,
+        docker_api.CONTAINER_DELETE % (container)
+    )
+    CommonRequest.delete(url=url)
+
     time.sleep(1)
     return HttpResponseRedirect('/containers')
 
 
 def container_restart(request, container):
     server = __default_server(request)
-    http_client.post_req(
-        host=server.ip, port=server.port,
+
+    url = 'http://%s:%d%s' % (
+        server.ip,
+        server.port,
+        docker_api.CONTAINER_RESTART % (container)
+    )
+    CommonRequest.post(
+        url=url,
         headers={'Content-type': 'application/json'},
-        body=None,
-        url=docker_api.CONTAINER_RESTART % (container))
+    )
     time.sleep(1)
     return HttpResponseRedirect('/containers')

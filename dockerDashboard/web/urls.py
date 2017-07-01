@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
+
+from dockerDashboard.tools import error
 from dockerDashboard.web import view
-from dockerDashboard.utils import error
 
 urlpatterns = patterns('',
                        url(r'^$', view.host_list),  # default url

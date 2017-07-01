@@ -1,0 +1,137 @@
+[
+  {
+    "Size": 374817093,
+    "VirtualSize": 374817093,
+    "Created": 1474682918,
+    "Labels": {
+      "build-date": "20160906",
+      "vendor": "CentOS",
+      "name": "CentOS Base Image",
+      "license": "GPLv2"
+    },
+    "RepoDigests": null,
+    "Id": "sha256:7a131b11cf190b8e232e2c452b0eb41639bc3fe5699e5decdfa7e2c2c7a5e64c",
+    "ParentId": "sha256:3c6cd40675ac22c1ad71cfdb6baff932d1f5c18c2463b5cd81529053798d54dd",
+    "RepoTags": [
+      "nginx:latest"
+    ]
+  },
+  {
+    "Size": 374774291,
+    "VirtualSize": 374774291,
+    "Created": 1474681682,
+    "Labels": {
+      "build-date": "20160906",
+      "vendor": "CentOS",
+      "name": "CentOS Base Image",
+      "license": "GPLv2"
+    },
+    "RepoDigests": null,
+    "Id": "sha256:fdbfd7bf90853b69efb44b0d3b0fdb0bf74851926cf6416850f40243a36fdc55",
+    "ParentId": "sha256:1438c6433db0811c3ae8c59716cbd8a7d8e6ba59068eecabba36ba00b3348377",
+    "RepoTags": [
+      "test:1",
+      "test:2"
+    ]
+  },
+  {
+    "Size": 374774291,
+    "VirtualSize": 374774291,
+    "Created": 1474557182,
+    "Labels": {
+      "build-date": "20160906",
+      "vendor": "CentOS",
+      "name": "CentOS Base Image",
+      "license": "GPLv2"
+    },
+    "RepoDigests": null,
+    "Id": "sha256:511561041c6ed8095a51d6e4744ca13082c06698dd55d2bdbe71a67e2095e725",
+    "ParentId": "sha256:1438c6433db0811c3ae8c59716cbd8a7d8e6ba59068eecabba36ba00b3348377",
+    "RepoTags": [
+      "kingaric/nginx:latest"
+    ]
+  },
+  {
+    "Size": 385527563,
+    "VirtualSize": 385527563,
+    "Created": 1473272349,
+    "Labels": {},
+    "RepoDigests": null,
+    "Id": "sha256:b7dc0600619272d4049e001231ab2eac80449c6e9fbbc010f00b30b08d295519",
+    "ParentId": "",
+    "RepoTags": [
+      "daocloud.io/mysql:latest"
+    ]
+  },
+  {
+    "Size": 196744353,
+    "VirtualSize": 196744353,
+    "Created": 1473196220,
+    "Labels": {
+      "build-date": "20160906",
+      "vendor": "CentOS",
+      "name": "CentOS Base Image",
+      "license": "GPLv2"
+    },
+    "RepoDigests": null,
+    "Id": "sha256:9c6d4e27bb8ba12b101c399e29ca84b9a5d5e21e8504c15ca7b39f3be8d2ec12",
+    "ParentId": "",
+    "RepoTags": [
+      "daocloud.io/centos:7"
+    ]
+  },
+  {
+    "Size": 194621904,
+    "VirtualSize": 194621904,
+    "Created": 1472581194,
+    "Labels": {
+      "vendor": "CentOS",
+      "name": "CentOS Base Image",
+      "license": "GPLv2"
+    },
+    "RepoDigests": null,
+    "Id": "sha256:f93fccd0b433797638b012ada886a348516b9ed70f10120c860e80a4e9eb095f",
+    "ParentId": "",
+    "RepoTags": [
+      "daocloud.io/library/centos:7.2.1511"
+    ]
+  },
+  {
+    "Size": 7472391,
+    "VirtualSize": 7472391,
+    "Created": 1471316578,
+    "Labels": {},
+    "RepoDigests": null,
+    "Id": "sha256:bb11232a492cee4fddc718ea0ae37e5f814499154685204da1aaf3e2d5cdc320",
+    "ParentId": "",
+    "RepoTags": [
+      "daocloud.io/daocloud/dao-2048:latest"
+    ]
+  },
+  {
+    "Size": 215385358,
+    "VirtualSize": 215385358,
+    "Created": 1463007222,
+    "Labels": {
+      "distribution-scope": "public",
+      "Name": "openshift3/ose-pod",
+      "Build_Host": "rcm-img-docker02.build.eng.bos.redhat.com",
+      "vcs-type": "git",
+      "Version": "v3.2.0.44",
+      "Architecture": "x86_64",
+      "Release": "2",
+      "BZComponent": "openshift-enterprise-pod-docker",
+      "build-date": "2016-05-11T22:40:57.131710Z",
+      "vcs-ref": "9bbc0ae32eb043a8e96a1b88105e35146dcab1eb",
+      "Vendor": "Red Hat, Inc.",
+      "architecture": "x86_64",
+      "Authoritative_Registry": "registry.access.redhat.com"
+    },
+    "RepoDigests": null,
+    "Id": "sha256:ee020ceeef010ea1fe65f4b42edcaf0095aa0fc30f160b4ed8b1ec2080130403",
+    "ParentId": "",
+    "RepoTags": [
+      "registry.access.redhat.com/rhel7/pod-infrastructure:latest"
+    ]
+  }
+]

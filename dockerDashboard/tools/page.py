@@ -2,7 +2,8 @@
 from django.core.paginator import Paginator
 
 
-def pagination(request, queryset, display_amount=10, after_range_num=5, bevor_range_num=4):
+def pagination(request, queryset, display_amount=10,
+               after_range_num=5, bevor_range_num=4):
     paginator = Paginator(queryset, display_amount)
     try:
         page = request.GET.get('page')
