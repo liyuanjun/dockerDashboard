@@ -1,16 +1,21 @@
-# this a simple docker dashboard
+# This a simple docker dashboard  :heart:
 
-## env
-###### python 2.7; django 1.8.0 ; sqlite3 ;docker remote api 1.9 ;docker 11.0
+## 环境
+> python 2.7
+> django 1.8.0
+> sqlite3
+> docker remote api 1.9
+> docker 11.0
 
-## run
+## 运行
+```bash
+$ ./start.sh
 ```
-python manage.py runserver
+## Docker Host
+![tom](./misc/host.png)
 
-```
-## docker主机配置
-![king-aric](./misc/host.png)
-## docker镜像
-![king-aric](./misc/image.png)
-## docker容器
+## Docker Image
+![tom](./misc/image.png)
+
+## Docker Container
 ![king-aric](./misc/container.png)
